@@ -2,21 +2,29 @@
 import type { FocusEvent, KeyboardEvent } from 'react'
 import { useState } from 'react'
 import styles from './block.module.css'
+import { persistBlockData } from '@/requests'
 
 export default function Block() {
   const [text, setText] = useState('')
   const [editMode, setEditMode] = useState(true)
+  const [loading, setLoading] = useState(false);
 
+  const handleSave = async () => {
+    setLoading(true);
+    setEditMode(false)
+    await persistBlockData();
+    setLoading(false);
+  }
 
-  const handleSubmitField = (
+  const handleInput = async (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement>
   ) => {
     if (isKeyBoardEvent(e)) {
       if (e.key === 'Enter') {
-        setEditMode(false)
+        handleSave();
       }
     } else if (e.type === 'blur') {
-      setEditMode(false)
+      handleSave();
     }
   }
 
@@ -25,15 +33,15 @@ export default function Block() {
       {editMode ? (
         <input
           autoFocus
-          className={styles.block}
+          className={`${styles.block} ${styles.editing}`}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyUp={handleSubmitField}
-          onBlur={handleSubmitField}
+          onKeyUp={handleInput}
+          onBlur={handleInput}
         />
       ) : (
         <div
-          className={styles.block}
+          className={`${styles.block} ${loading ? styles.animate : ''}`}
           onClick={() => setEditMode(true)}
         >
           {text}
