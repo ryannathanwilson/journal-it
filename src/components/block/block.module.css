@@ -1,0 +1,6 @@
+.div {
+  padding: 12px 18px;
+  margin: 2px;
+  border: 2px solid var(--grey-80);
+  border-radius: 6px;
+}
