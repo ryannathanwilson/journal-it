@@ -1,6 +1,10 @@
-.div {
+.block {
   padding: 12px 18px;
   margin: 2px;
-  border: 2px solid var(--grey-80);
+  border: 1px solid var(--grey-80);
   border-radius: 6px;
+  background-color: inherit;
+  color: inherit;
+  outline: none;
+  font-size: 1rem;
 }
