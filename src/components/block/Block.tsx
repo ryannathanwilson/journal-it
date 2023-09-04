@@ -2,40 +2,28 @@
 import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react'
 import { useState } from 'react'
 import styles from './block.module.css'
-import { persistBlockData } from '@/requests'
-import { Block, useGlobalState } from '@/state'
+import type { Block } from '@/state'
 import classes from '@/utils/classes'
-import sleep from '@/utils/sleep'
+import usePersistBlock from '@/hooks/usePersistBlock'
 
 export default function Block({ block }: { block: Block }) {
   const newBlock = block.content === ''
-  const { dispatch } = useGlobalState();
   const [text, setText] = useState(block.content)
   const empty = text === ''
   const [editMode, setEditMode] = useState(block.content === '')
-  const [loading, setLoading] = useState(false);
+
+  const { loading, saveBlock, deleteBlock } = usePersistBlock({ block, text })
 
   const deleteItem = async (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
     if (empty) return;
-    setLoading(true);
-    await sleep(150)
-    dispatch({
-      type: 'delete',
-      payload: { id: block.id }
-    })
-    setLoading(false);
+    await deleteBlock()
   }
 
+
   const handleSave = async () => {
-    setLoading(true);
     setEditMode(false)
-    const updatedBlock = await persistBlockData({ ...block, content: text });
-    dispatch({
-      type: newBlock ? 'create' : 'update',
-      payload: updatedBlock,
-    })
-    setLoading(false);
+    await saveBlock();
   }
 
   const handleInput = async (
@@ -47,6 +35,7 @@ export default function Block({ block }: { block: Block }) {
         handleSave();
       }
     } else if (e.type === 'blur' && text !== '') {
+      console.log(e);
       handleSave();
     }
   }
@@ -80,15 +69,13 @@ export default function Block({ block }: { block: Block }) {
             >
               {text}
             </div>
+            <div
+              onClick={(e) => deleteItem(e)}
+              className={classes(styles.delete)}
+            >
+              X
+            </div>
           </>
-        }
-        {!empty &&
-          <div
-            onClick={(e) => deleteItem(e)}
-            className={classes(styles.delete)}
-          >
-            X
-          </div>
         }
       </div>
     </>
