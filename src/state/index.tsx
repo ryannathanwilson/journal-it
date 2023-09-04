@@ -1,35 +1,62 @@
 'use client'
 import { PropsWithChildren, createContext, useContext, useReducer } from "react";
+import { v4 } from "uuid";
 
-const GlobalState = createContext({});
-const useGlobalState = () => useContext(GlobalState);
-
-type Block = {
+export type Block = {
   id: string;
   content: string;
 }
 
-type State = Block[];
+type State = Map<string, Block>;
 type Action =
-  | { type: 'save', block: Block }
-  | { type: 'delete', id: string }
+  | { type: 'create', payload: Block }
+  | { type: 'update', payload: Block }
+  | { type: 'delete', payload: { id: string } }
+  | { type: 'add-empty' }
+const initialState: State = new Map();
+
+const GlobalState = createContext<{
+  state: State,
+  dispatch: React.Dispatch<Action>
+}>({
+  state: initialState,
+  dispatch: () => null,
+});
+const useGlobalState = () => useContext(GlobalState);
+
 
 const reducer = (previousState: State, action: Action): State => {
+  const updatedState = new Map(previousState);
   switch (action.type) {
-    case 'save':
-      return [...previousState, action.block];
+    case 'create':
+      console.log('CREATE');
+      updatedState.set(action.payload.id, action.payload);
+      const id = v4()
+      updatedState.set(id, { content: '', id })
+      return updatedState;
+    case 'update':
+      console.log('UPDATE');
+      updatedState.set(action.payload.id, action.payload);
+      return updatedState;
     case 'delete':
-      return previousState.filter(block => block.id !== action.id);
+      console.log('DELETE');
+      updatedState.delete(action.payload.id);
+      return updatedState;
+    case 'add-empty':
+      console.log('ADD EMPTY');
+      const emptyId = v4()
+      updatedState.set(emptyId, { content: '', id: emptyId })
+      return updatedState;
   }
 }
 const initializer = (initialArgs: State) => {
-  return initialArgs;
+  return reducer(initialArgs, { type: 'add-empty' });
 }
 
 function GlobalStateProvider({ children }: PropsWithChildren) {
-  const [state, dispatch] = useReducer(reducer, [], initializer);
+  const [state, dispatch] = useReducer(reducer, new Map(), initializer);
   return (
-    <GlobalState.Provider value={[state, dispatch]}>{children}</GlobalState.Provider>
+    <GlobalState.Provider value={{ state, dispatch }}>{children}</GlobalState.Provider>
   )
 }
 

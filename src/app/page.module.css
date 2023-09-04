@@ -1,10 +1,12 @@
 .main {
   display: flex;
   flex-direction: column;
-  padding: 6rem;
+  padding: 2rem;
   min-height: 100vh;
-  gap: 1rem;
   background-color: var(--grey-90);
   color: var(--grey-10);
+  @media (min-width: 600px) {
+    padding: 6rem;
+  }
 }
 
