@@ -1,39 +1,52 @@
 'use client'
 
-import { persistBlockData } from "@/requests";
-import { Block, useGlobalState } from "@/state"
-import sleep from "@/utils/sleep";
-import { useState } from "react"
+import { useGlobalState } from '@/state'
+import sleep from '@/utils/sleep'
+import { trpc } from '@/utils/trpc/trpc'
+import { Block } from '@/utils/types'
+import { useState } from 'react'
 
-export default function usePersistBlock({ block, text }: { block: Block, text: string }) {
+export default function usePersistBlock({
+  block,
+  text,
+}: {
+  block: Block
+  text: string
+}) {
   const newBlock = block.content === ''
-  const { dispatch } = useGlobalState();
-  const [loading, setLoading] = useState(false);
+  const { dispatch } = useGlobalState()
+  const [loading, setLoading] = useState(false)
+  const createBlock = trpc.createBlock.useMutation({
+    onSuccess: (data) =>
+      dispatch({
+        type: 'create',
+        payload: data,
+      }),
+  })
+  const updateBlock = trpc.updateBlock.useMutation({
+    onSuccess: (data) =>
+      dispatch({
+        type: 'update',
+        payload: data,
+      }),
+  })
 
-  const saveBlock = async () => {
-    setLoading(true);
-    const updatedBlock = await persistBlockData({ ...block, content: text });
-    dispatch({
-      type: newBlock ? 'create' : 'update',
-      payload: updatedBlock,
-    })
-    setLoading(false);
-  }
+  const saveBlock = newBlock
+    ? async () => createBlock.mutateAsync({ ...block, content: text })
+    : async () => updateBlock.mutateAsync({ ...block, content: text })
 
-  const deleteBlock = async () => {
-    setLoading(true);
-    await sleep(150)
-    dispatch({
-      type: 'delete',
-      payload: { id: block.id }
-    })
-    setLoading(false);
-  }
+  const deleteBlock = trpc.deleteBlock.useMutation({
+    onSuccess: (data) =>
+      dispatch({
+        type: 'delete',
+        payload: data,
+      }),
+  })
 
   return {
-    saveBlock: async () => saveBlock(),
-    deleteBlock: async () => deleteBlock(),
-    loading,
+    saveBlock: saveBlock,
+    deleteBlock: async () => deleteBlock.mutateAsync({ id: block.id }),
+    loading:
+      deleteBlock.isLoading || createBlock.isLoading || updateBlock.isLoading,
   }
-
 }

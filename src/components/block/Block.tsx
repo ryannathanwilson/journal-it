@@ -2,9 +2,9 @@
 import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react'
 import { useState } from 'react'
 import styles from './block.module.css'
-import type { Block } from '@/state'
 import classes from '@/utils/classes'
 import usePersistBlock from '@/hooks/usePersistBlock'
+import { Block } from '@/utils/types'
 
 export default function Block({ block }: { block: Block }) {
   const newBlock = block.content === ''
@@ -16,45 +16,40 @@ export default function Block({ block }: { block: Block }) {
 
   const deleteItem = async (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
-    if (empty) return;
+    if (empty) return
     await deleteBlock()
   }
 
-
   const handleSave = async () => {
     setEditMode(false)
-    await saveBlock();
+    await saveBlock()
   }
 
   const handleInput = async (
     e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement>
   ) => {
-    if (text === '') return;
+    if (text === '') return
     if (isKeyBoardEvent(e)) {
       if (e.key === 'Enter') {
-        handleSave();
+        handleSave()
       }
     } else if (e.type === 'blur' && text !== '') {
-      console.log(e);
-      handleSave();
+      console.log(e)
+      handleSave()
     }
   }
 
   return (
     <>
       <div
-        className={
-          classes(
-            styles.block,
-            newBlock && styles.newBlock,
-            loading && (newBlock
-              ? styles.animateCreate
-              : styles.animateUpdate),
-          )
-        }
+        className={classes(
+          styles.block,
+          newBlock && styles.newBlock,
+          loading && (newBlock ? styles.animateCreate : styles.animateUpdate)
+        )}
         onClick={() => setEditMode(true)}
       >
-        {editMode ?
+        {editMode ? (
           <input
             autoFocus
             className={classes(styles.input)}
@@ -62,13 +57,10 @@ export default function Block({ block }: { block: Block }) {
             onChange={(e) => setText(e.target.value)}
             onKeyUp={handleInput}
             onBlur={handleInput}
-          /> :
+          />
+        ) : (
           <>
-            <div
-              className={classes(styles.content)}
-            >
-              {text}
-            </div>
+            <div className={classes(styles.content)}>{text}</div>
             <div
               onClick={(e) => deleteItem(e)}
               className={classes(styles.delete)}
@@ -76,12 +68,11 @@ export default function Block({ block }: { block: Block }) {
               X
             </div>
           </>
-        }
+        )}
       </div>
     </>
   )
 }
 
-const isKeyBoardEvent = (x: any): x is KeyboardEvent => (
+const isKeyBoardEvent = (x: any): x is KeyboardEvent =>
   (x as KeyboardEvent).key !== undefined
-)
