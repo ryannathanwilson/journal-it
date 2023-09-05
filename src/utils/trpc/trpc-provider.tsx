@@ -19,7 +19,7 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
       links: [
         loggerLink({ enabled: () => true }),
         httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc/`,
+          url: `${getBaseUrl()}/api/trpc`,
           fetch: async (input, init?) => {
             const fetch = getFetch()
             return fetch(input, {

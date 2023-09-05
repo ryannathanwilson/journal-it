@@ -14,11 +14,6 @@ const block = z.object({
 })
 
 export const appRouter = t.router({
-  hello: t.procedure.input(z.object({ text: z.string() })).query((opts) => {
-    return {
-      greeting: `hello ${opts.input.text}, from ${opts.ctx.myContext}`,
-    }
-  }),
   createBlock: t.procedure.input(block).mutation(async (opts) => {
     console.log('CREATE ON BACKEND', opts.input)
     await sleep(1000)
