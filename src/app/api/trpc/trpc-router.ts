@@ -1,10 +1,10 @@
 import { initTRPC } from '@trpc/server'
 import { z } from 'zod'
 import SuperJSON from 'superjson'
-import { Context } from './[trpc]/route'
 import sleep from '@/utils/sleep'
+import { TrpcContext } from '@/utils/trpc/context'
 
-const t = initTRPC.context<Context>().create({
+const t = initTRPC.context<TrpcContext>().create({
   transformer: SuperJSON,
 })
 

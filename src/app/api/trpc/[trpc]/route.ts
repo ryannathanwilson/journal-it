@@ -1,22 +1,8 @@
-import {
-  FetchCreateContextFnOptions,
-  fetchRequestHandler,
-} from '@trpc/server/adapters/fetch'
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
 
 import { appRouter } from '../trpc-router'
+import { createContext } from '@/utils/trpc/context'
 
-export type Context = {
-  myContext: 'RNW'
-}
-
-export const createContext = async (
-  opts: FetchCreateContextFnOptions
-): Promise<Context> => {
-  return {
-    ...opts,
-    myContext: 'RNW',
-  }
-}
 const handler = (request: Request) => {
   console.log(`Incoming request: ${request.url}`)
   return fetchRequestHandler({

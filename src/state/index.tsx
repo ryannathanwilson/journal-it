@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 type State = Map<string, Block>
 type Action =
+  | { type: 'initialize' }
   | { type: 'create'; payload: Block }
   | { type: 'update'; payload: Block }
   | { type: 'delete'; payload: { id: string } }
@@ -25,7 +26,7 @@ const validBlock = z.array(
   z.tuple([z.string(), z.object({ content: z.string(), id: z.string() })])
 )
 const syncWithStorage = (state: State) => {
-  if (typeof window === 'undefined') throw new Error('Cant sync on server')
+  if (typeof window === 'undefined') throw new Error()
   if (state.size) {
     window.localStorage.setItem(
       'home-blocks',
@@ -43,6 +44,14 @@ const syncWithStorage = (state: State) => {
 const reducer = (previousState: State, action: Action): State => {
   const updatedState = new Map(previousState)
   switch (action.type) {
+    case 'initialize':
+      let syncedState = syncWithStorage(updatedState)
+      if (syncedState.size === 0) {
+        const newId = v4()
+        syncedState.set(newId, { content: '', id: newId })
+        syncedState = syncWithStorage(syncedState)
+      }
+      return syncedState
     case 'create':
       console.log('CREATE')
       updatedState.set(action.payload.id, action.payload)
@@ -69,7 +78,7 @@ const reducer = (previousState: State, action: Action): State => {
   }
 }
 const initializer = (initialArgs: State) => {
-  return syncWithStorage(initialArgs)
+  return initialArgs
 }
 
 function GlobalStateProvider({ children }: PropsWithChildren) {
