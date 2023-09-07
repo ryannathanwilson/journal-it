@@ -16,19 +16,19 @@ const block = z.object({
 export const appRouter = t.router({
   createBlock: t.procedure.input(block).mutation(async (opts) => {
     console.log('CREATE ON BACKEND', opts.input)
-    await sleep(1000)
+    await sleep(200)
     return opts.input
   }),
   updateBlock: t.procedure.input(block).mutation(async (opts) => {
     console.log('UPDATE ON BACKEND', opts.input)
-    await sleep(1000)
+    await sleep(200)
     return opts.input
   }),
   deleteBlock: t.procedure
     .input(z.object({ id: z.string() }))
     .mutation(async (opts) => {
       console.log('DELETE ON BACKEND', opts.input.id)
-      await sleep(1000)
+      await sleep(200)
       return opts.input
     }),
 })

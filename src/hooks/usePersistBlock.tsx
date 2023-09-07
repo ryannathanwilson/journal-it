@@ -1,10 +1,8 @@
 'use client'
 
 import { useGlobalState } from '@/state'
-import sleep from '@/utils/sleep'
 import { trpc } from '@/utils/trpc/trpc'
 import { Block } from '@/utils/types'
-import { useState } from 'react'
 
 export default function usePersistBlock({
   block,
@@ -15,7 +13,6 @@ export default function usePersistBlock({
 }) {
   const newBlock = block.content === ''
   const { dispatch } = useGlobalState()
-  const [loading, setLoading] = useState(false)
   const createBlock = trpc.createBlock.useMutation({
     onSuccess: (data) =>
       dispatch({

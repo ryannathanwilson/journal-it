@@ -1,34 +1,71 @@
 .block {
   position: relative;
   display: flex;
-  padding: 0px 1.5rem;
-  margin: 2px;
+  justify-content: space-between;
+  margin: 6px 0;
   line-height: 1.5rem;
   border-radius: 1.5rem;
   background-color: inherit;
   color: inherit;
   font-size: 1rem;
-  margin-bottom: 6px;
   cursor: default;
 }
 
+.bullet {
+  padding-left: 2rem;
+}
+
 .newBlock {
+  padding-inline: 1.5rem;
+  margin-top: 12px;
   line-height: 3rem;
   height: 3rem;
   box-shadow: 0 0 0 1px var(--shadow);
 }
 
 .content {
-  flex-grow: 1;
+  margin-right: 12px;
+  flex-shrink: 1;
+  min-width: 0px;
 }
 
 .delete {
+  position: relative;
+  z-index: 10;
+  width: 1.5rem;
+  top: 0;
+  bottom: 0;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-dark);
   cursor: pointer;
-  color: var(--grey-80);
 }
-
-.delete:hover {
-  color: var(--accent-red);
+.delete::before,
+.delete::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 1rem;
+  top: 0.7rem;
+  height: 0.2rem;
+  background-color: var(--grey-80);
+  border-radius: 0.1rem;
+  transition: all 300ms ease;
+}
+.delete::before {
+  transform: rotate(45deg);
+}
+.delete::after {
+  transform: rotate(-45deg);
+}
+.delete:hover::before {
+  transform: rotate(135deg);
+  background-color: var(--accent-red);
+}
+.delete:hover::after {
+  transform: rotate(45deg);
+  background-color: var(--accent-red);
 }
 
 .input {
@@ -68,24 +105,24 @@
 
 @keyframes pulseBubble {
   0% {
-  box-shadow: 0 0 5px 1px var(--accent-blue);
+    box-shadow: 0 0 5px 1px var(--accent-blue);
   }
   60% {
-  box-shadow: 0 0 15px 5px var(--accent-blue);
+    box-shadow: 0 0 15px 5px var(--accent-blue);
   }
   100% {
-  box-shadow: 0 0 5px 1px var(--accent-blue);
+    box-shadow: 0 0 5px 1px var(--accent-blue);
   }
 }
 
 @keyframes pulse {
   0% {
-  box-shadow: 0 0 0px 1px var(--shadow);
+    box-shadow: 0 0 0px 1px var(--shadow);
   }
   60% {
-  box-shadow: 0 0 0 5px var(--shadow);
+    box-shadow: 0 0 0 5px var(--shadow);
   }
   100% {
-  box-shadow: 0 0 0px 1px var(--shadow);
+    box-shadow: 0 0 0px 1px var(--shadow);
   }
 }

@@ -1,14 +1,28 @@
 'use client'
-import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react'
+import type { FocusEvent, KeyboardEvent, MouseEvent, ReactNode } from 'react'
 import { useState } from 'react'
 import styles from './block.module.css'
 import classes from '@/utils/classes'
 import usePersistBlock from '@/hooks/usePersistBlock'
-import { Block } from '@/utils/types'
+import type { Block, BlockTypes } from '@/utils/types'
+
+const getBlockType = (text: string): BlockTypes => {
+  switch (text.slice(0, 2)) {
+    case '- ':
+      return 'bullet'
+    case 'o ':
+      return 'check'
+    case 'x ':
+      return 'checked'
+    default:
+      return 'paragraph'
+  }
+}
 
 export default function Block({ block }: { block: Block }) {
   const newBlock = block.content === ''
   const [text, setText] = useState(block.content)
+  const type = getBlockType(text)
   const empty = text === ''
   const [editMode, setEditMode] = useState(block.content === '')
 
@@ -38,6 +52,13 @@ export default function Block({ block }: { block: Block }) {
       handleSave()
     }
   }
+  const view: Record<BlockTypes, typeof Paragraph> = {
+    paragraph: Paragraph,
+    check: Paragraph,
+    checked: Paragraph,
+    bullet: Bullet,
+  }
+  const Component = view[type]
 
   return (
     <>
@@ -60,17 +81,40 @@ export default function Block({ block }: { block: Block }) {
           />
         ) : (
           <>
-            <div className={classes(styles.content)}>{text}</div>
+            <Component className={classes(styles.content)} text={text} />
             <div
               onClick={(e) => deleteItem(e)}
               className={classes(styles.delete)}
-            >
-              X
-            </div>
+            ></div>
           </>
         )}
       </div>
     </>
+  )
+}
+
+const Paragraph = ({
+  className,
+  text,
+}: {
+  className: string
+  text: string
+}): ReactNode => {
+  return <div className={className}>{text}</div>
+}
+
+const Bullet = ({
+  className,
+  text,
+}: {
+  className: string
+  text: string
+}): ReactNode => {
+  const textToRender = text.slice(2)
+  return (
+    <ul className={classes(className, styles.bullet)}>
+      <li>{textToRender}</li>
+    </ul>
   )
 }
 
