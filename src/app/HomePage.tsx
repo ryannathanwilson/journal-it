@@ -7,16 +7,17 @@ export default function HomePage() {
   const { state, dispatch } = useGlobalState()
 
   useEffect(() => {
-    if (state.size === 0) {
+    if (state.blocks.size === 0) {
       dispatch({ type: 'initialize' })
     }
   }, [state, dispatch])
 
   return (
     <>
-      {Array.from(state.values()).map((block) => (
-        <Block key={block.id} block={block} />
-      ))}
+      {Array.from(state.blocks.values()).map((block, index) => {
+        const isLastBlock = index + 1 === state.blocks.size
+        return <Block key={block.id} block={block} isLastBlock={isLastBlock} />
+      })}
     </>
   )
 }

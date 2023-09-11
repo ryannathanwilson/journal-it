@@ -18,11 +18,13 @@ export default function usePersistBlock({
   const newBlock = block.content === ''
   const { dispatch } = useGlobalState()
   const createBlock = trpc.createBlock.useMutation({
-    onSuccess: (data) =>
-      dispatch({
+    onSuccess: (data) => {
+      console.log('CREATE')
+      return dispatch({
         type: 'create',
         payload: data,
-      }),
+      })
+    },
   })
   const updateBlock = trpc.updateBlock.useMutation({
     onSuccess: (data) =>

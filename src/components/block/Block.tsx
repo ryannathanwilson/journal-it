@@ -6,18 +6,39 @@ import type { Block, BlockTypes } from '@/utils/types'
 import Decorator from './Decorator'
 import { BlockWrapper, Content, DeleteIcon } from './Block.styled'
 import { keysToBlock } from '@/utils/constants'
+import { useGlobalState } from '@/state'
 
-export default function Block({ block }: { block: Block }) {
+export default function Block({
+  block,
+  isLastBlock,
+}: {
+  block: Block
+  isLastBlock: boolean
+}) {
+  const { state, dispatch } = useGlobalState()
   const newBlock = block.content === ''
   const [text, setText] = useState(block.content)
   const [indent, setIndent] = useState(block.indent)
   const [type, setType] = useState<BlockTypes>(block.type)
   const blockRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
+    if (isLastBlock && blockRef.current) {
+      dispatch({
+        type: 'reference-last-block',
+        payload: { blockRef: blockRef.current },
+      })
+    }
+  }, [isLastBlock, blockRef])
+  useEffect(() => {
     if (blockRef.current) {
       blockRef.current.innerText = text
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (type !== block.type && text !== '') {
+      handleSave()
+    }
+  }, [type])
 
   const { loading, saveBlock, deleteBlock } = usePersistBlock({
     block,
@@ -46,9 +67,9 @@ export default function Block({ block }: { block: Block }) {
   }
 
   const handleInput = async (e: KeyboardEvent<HTMLDivElement>) => {
-    console.log(e)
     const newValue = e.currentTarget.innerText.toString() || ''
     if (e.key === 'Enter') {
+      console.log('ENTER SAVE', text)
       handleSave()
     } else if (e.key === 'Backspace') {
       if (newValue === text) {
@@ -61,7 +82,6 @@ export default function Block({ block }: { block: Block }) {
       }
     } else if (e.key === 'Tab') {
       if (type === 'paragraph') {
-        console.log('type', type)
         setType('check')
       } else if (e.shiftKey) {
         if (indent > 0) {
@@ -73,16 +93,13 @@ export default function Block({ block }: { block: Block }) {
         }
       }
     } else if (newValue.startsWith('-')) {
-      console.log('starts!')
       const choppedValue = newValue.slice(1) || ''
       setText(choppedValue) // but this doesn't update the value of the node
       if (blockRef.current) {
-        console.log(choppedValue)
         blockRef.current.innerText = choppedValue
       }
       setType('bullet')
     } else {
-      console.log('else')
       setText(newValue || '')
     }
   }
@@ -93,7 +110,6 @@ export default function Block({ block }: { block: Block }) {
         type={type}
         indent={indent}
         onClick={() => {
-          console.log('TYPE:', type)
           if (type === 'check') {
             setType('checked')
           } else if (type === 'checked') {
@@ -105,11 +121,9 @@ export default function Block({ block }: { block: Block }) {
         onKeyUp={(e) => handleInput(e)}
         onKeyDown={(e) => blockSpecialCharacters(e)}
         onBlur={handleBlur}
-        // defaultValue={text}
         contentEditable
         ref={blockRef}
         $type={type}
-        // onInput={handleInput}
       ></Content>
       <DeleteIcon
         className="delete"
