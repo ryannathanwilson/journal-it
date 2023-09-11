@@ -2,14 +2,18 @@
 
 import { useGlobalState } from '@/state'
 import { trpc } from '@/utils/trpc/trpc'
-import { Block } from '@/utils/types'
+import { Block, BlockTypes } from '@/utils/types'
 
 export default function usePersistBlock({
   block,
   text,
+  indent,
+  type,
 }: {
   block: Block
   text: string
+  indent: number
+  type: BlockTypes
 }) {
   const newBlock = block.content === ''
   const { dispatch } = useGlobalState()
@@ -29,8 +33,10 @@ export default function usePersistBlock({
   })
 
   const saveBlock = newBlock
-    ? async () => createBlock.mutateAsync({ ...block, content: text })
-    : async () => updateBlock.mutateAsync({ ...block, content: text })
+    ? async () =>
+        createBlock.mutateAsync({ ...block, content: text, type, indent })
+    : async () =>
+        updateBlock.mutateAsync({ ...block, content: text, type, indent })
 
   const deleteBlock = trpc.deleteBlock.useMutation({
     onSuccess: (data) =>

@@ -1,5 +1,6 @@
 'use client'
 import { Block } from '@/utils/types'
+import { blockValidator } from '@/utils/types/validators'
 import { PropsWithChildren, createContext, useContext, useReducer } from 'react'
 import { v4 } from 'uuid'
 import { z } from 'zod'
@@ -10,7 +11,6 @@ type Action =
   | { type: 'create'; payload: Block }
   | { type: 'update'; payload: Block }
   | { type: 'delete'; payload: { id: string } }
-  | { type: 'add-empty' }
 const initialState: State = new Map()
 
 const GlobalState = createContext<{
@@ -22,10 +22,9 @@ const GlobalState = createContext<{
 })
 const useGlobalState = () => useContext(GlobalState)
 
-const validBlock = z.array(
-  z.tuple([z.string(), z.object({ content: z.string(), id: z.string() })])
-)
-const syncWithStorage = (state: State) => {
+const validBlock = z.array(z.tuple([z.string(), blockValidator]))
+
+const syncWithStorage = (state: State): State => {
   if (typeof window === 'undefined') throw new Error()
   if (state.size) {
     window.localStorage.setItem(
@@ -48,31 +47,32 @@ const reducer = (previousState: State, action: Action): State => {
       let syncedState = syncWithStorage(updatedState)
       if (syncedState.size === 0) {
         const newId = v4()
-        syncedState.set(newId, { content: '', id: newId })
+        syncedState.set(newId, {
+          content: '',
+          id: newId,
+          indent: 0,
+          type: 'paragraph',
+        })
         syncedState = syncWithStorage(syncedState)
       }
       return syncedState
     case 'create':
-      console.log('CREATE')
       updatedState.set(action.payload.id, action.payload)
       const id = v4()
-      updatedState.set(id, { content: '', id })
+      updatedState.set(id, {
+        content: '',
+        id,
+        type: 'paragraph',
+        indent: 0,
+      })
       syncWithStorage(updatedState)
       return updatedState
     case 'update':
-      console.log('UPDATE')
       updatedState.set(action.payload.id, action.payload)
       syncWithStorage(updatedState)
       return updatedState
     case 'delete':
-      console.log('DELETE')
       updatedState.delete(action.payload.id)
-      syncWithStorage(updatedState)
-      return updatedState
-    case 'add-empty':
-      console.log('ADD EMPTY')
-      const emptyId = v4()
-      updatedState.set(emptyId, { content: '', id: emptyId })
       syncWithStorage(updatedState)
       return updatedState
   }

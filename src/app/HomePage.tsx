@@ -7,14 +7,10 @@ export default function HomePage() {
   const { state, dispatch } = useGlobalState()
 
   useEffect(() => {
-    console.log('HOME USE_EFFECT')
     if (state.size === 0) {
-      console.log('INITIALIZE USE_EFFECT')
       dispatch({ type: 'initialize' })
     }
   }, [state, dispatch])
-
-  console.log('STATE:', state)
 
   return (
     <>

@@ -1,7 +1,8 @@
 import { GlobalStateProvider } from '@/state'
-import './globals.css'
 import type { Metadata } from 'next'
 import { TrpcProvider } from '@/utils/trpc/trpc-provider'
+import { GlobalStyles } from './globalStyles'
+import StyledComponentsRegistry from '@/lib/registry'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -10,13 +11,18 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <TrpcProvider>
-          <GlobalStateProvider>{children}</GlobalStateProvider>
-        </TrpcProvider>
-      </body>
-    </html>
+    <>
+      <html lang="en">
+        <body>
+          <TrpcProvider>
+            <StyledComponentsRegistry>
+              <GlobalStyles />
+              <GlobalStateProvider>{children}</GlobalStateProvider>
+            </StyledComponentsRegistry>
+          </TrpcProvider>
+        </body>
+      </html>
+    </>
   )
 }
 

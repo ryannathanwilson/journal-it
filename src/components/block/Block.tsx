@@ -1,122 +1,120 @@
 'use client'
-import type { FocusEvent, KeyboardEvent, MouseEvent, ReactNode } from 'react'
-import { useState } from 'react'
-import styles from './block.module.css'
-import classes from '@/utils/classes'
+import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import usePersistBlock from '@/hooks/usePersistBlock'
 import type { Block, BlockTypes } from '@/utils/types'
-
-const getBlockType = (text: string): BlockTypes => {
-  switch (text.slice(0, 2)) {
-    case '- ':
-      return 'bullet'
-    case 'o ':
-      return 'check'
-    case 'x ':
-      return 'checked'
-    default:
-      return 'paragraph'
-  }
-}
+import Decorator from './Decorator'
+import { BlockWrapper, Content, DeleteIcon } from './Block.styled'
+import { keysToBlock } from '@/utils/constants'
 
 export default function Block({ block }: { block: Block }) {
   const newBlock = block.content === ''
   const [text, setText] = useState(block.content)
-  const type = getBlockType(text)
-  const empty = text === ''
-  const [editMode, setEditMode] = useState(block.content === '')
+  const [indent, setIndent] = useState(block.indent)
+  const [type, setType] = useState<BlockTypes>(block.type)
+  const blockRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (blockRef.current) {
+      blockRef.current.innerText = text
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { loading, saveBlock, deleteBlock } = usePersistBlock({ block, text })
+  const { loading, saveBlock, deleteBlock } = usePersistBlock({
+    block,
+    text,
+    type,
+    indent,
+  })
 
   const deleteItem = async (e: MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    if (empty) return
+    e.stopPropagation() // otherwise it activates editing the parent
     await deleteBlock()
   }
-
-  const handleSave = async () => {
-    setEditMode(false)
-    await saveBlock()
-  }
-
-  const handleInput = async (
-    e: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement>
-  ) => {
-    if (text === '') return
-    if (isKeyBoardEvent(e)) {
-      if (e.key === 'Enter') {
-        handleSave()
-      }
-    } else if (e.type === 'blur' && text !== '') {
-      console.log(e)
+  const handleBlur = async (e: FocusEvent<HTMLDivElement>) => {
+    if (text !== '') {
       handleSave()
     }
   }
-  const view: Record<BlockTypes, typeof Paragraph> = {
-    paragraph: Paragraph,
-    check: Paragraph,
-    checked: Paragraph,
-    bullet: Bullet,
+
+  const handleSave = async () => {
+    await saveBlock()
+    // TODO: create a new block at end if needed, and go to that!
   }
-  const Component = view[type]
+
+  const blockSpecialCharacters = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (keysToBlock.includes(e.key)) e.preventDefault()
+  }
+
+  const handleInput = async (e: KeyboardEvent<HTMLDivElement>) => {
+    console.log(e)
+    const newValue = e.currentTarget.innerText.toString() || ''
+    if (e.key === 'Enter') {
+      handleSave()
+    } else if (e.key === 'Backspace') {
+      if (newValue === text) {
+        if (indent > 0) {
+          setIndent((i) => i - 1)
+        } else {
+          console.log('delete')
+          // delete self and move focus up
+        }
+      }
+    } else if (e.key === 'Tab') {
+      if (type === 'paragraph') {
+        console.log('type', type)
+        setType('check')
+      } else if (e.shiftKey) {
+        if (indent > 0) {
+          setIndent((i) => i - 1)
+        }
+      } else {
+        if (indent < 8) {
+          setIndent((i) => i + 1)
+        }
+      }
+    } else if (newValue.startsWith('-')) {
+      console.log('starts!')
+      const choppedValue = newValue.slice(1) || ''
+      setText(choppedValue) // but this doesn't update the value of the node
+      if (blockRef.current) {
+        console.log(choppedValue)
+        blockRef.current.innerText = choppedValue
+      }
+      setType('bullet')
+    } else {
+      console.log('else')
+      setText(newValue || '')
+    }
+  }
 
   return (
-    <>
-      <div
-        className={classes(
-          styles.block,
-          newBlock && styles.newBlock,
-          loading && (newBlock ? styles.animateCreate : styles.animateUpdate)
-        )}
-        onClick={() => setEditMode(true)}
-      >
-        {editMode ? (
-          <input
-            autoFocus
-            className={classes(styles.input)}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyUp={handleInput}
-            onBlur={handleInput}
-          />
-        ) : (
-          <>
-            <Component className={classes(styles.content)} text={text} />
-            <div
-              onClick={(e) => deleteItem(e)}
-              className={classes(styles.delete)}
-            ></div>
-          </>
-        )}
-      </div>
-    </>
+    <BlockWrapper $loading={loading} $newBlock={newBlock}>
+      <Decorator
+        type={type}
+        indent={indent}
+        onClick={() => {
+          console.log('TYPE:', type)
+          if (type === 'check') {
+            setType('checked')
+          } else if (type === 'checked') {
+            setType('check')
+          }
+        }}
+      />
+      <Content
+        onKeyUp={(e) => handleInput(e)}
+        onKeyDown={(e) => blockSpecialCharacters(e)}
+        onBlur={handleBlur}
+        // defaultValue={text}
+        contentEditable
+        ref={blockRef}
+        $type={type}
+        // onInput={handleInput}
+      ></Content>
+      <DeleteIcon
+        className="delete"
+        onClick={(e) => deleteItem(e)}
+      ></DeleteIcon>
+    </BlockWrapper>
   )
 }
-
-const Paragraph = ({
-  className,
-  text,
-}: {
-  className: string
-  text: string
-}): ReactNode => {
-  return <div className={className}>{text}</div>
-}
-
-const Bullet = ({
-  className,
-  text,
-}: {
-  className: string
-  text: string
-}): ReactNode => {
-  const textToRender = text.slice(2)
-  return (
-    <ul className={classes(className, styles.bullet)}>
-      <li>{textToRender}</li>
-    </ul>
-  )
-}
-
-const isKeyBoardEvent = (x: any): x is KeyboardEvent =>
-  (x as KeyboardEvent).key !== undefined
