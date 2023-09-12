@@ -1,28 +1,70 @@
 import { color } from '@/theme'
 import { BlockTypes } from '@/utils/types'
-import { ReactNode } from 'react'
-import styled from 'styled-components'
+import { ReactNode, useEffect, useRef, useState } from 'react'
+import styled, { css, keyframes } from 'styled-components'
 
 export default function Decorator({
   type,
   indent,
   onClick,
+  loading,
 }: {
   type: BlockTypes
   indent: number
   onClick: () => void
+  loading: boolean
 }): ReactNode {
+  const [animationInterval, setAnimationInterval] = useState(false)
+  const loadingRef = useRef<boolean>()
+  useEffect(() => {
+    loadingRef.current = loading
+  }, [loading])
+
+  useEffect(() => {
+    if (loading && !animationInterval) {
+      setAnimationInterval(true)
+      const interval = setInterval(() => {
+        if (!loadingRef.current) {
+          setAnimationInterval(false)
+          clearInterval(interval)
+        }
+      }, 250)
+    }
+  }, [loading, animationInterval])
+
   const Component = view[type]
-  return <Component $indent={indent} onClick={onClick} />
+  return (
+    <Component
+      $indent={indent}
+      onClick={onClick}
+      $loading={animationInterval}
+    />
+  )
 }
 
-const Base = styled.div<{ $indent: number }>`
+const Spin = keyframes`
+0% {
+  transform: rotate(0);
+}
+100% {
+  transform: rotate(360deg)
+}
+`
+
+const Base = styled.div<{ $indent: number; $loading: boolean }>`
   margin-inline-start: ${({ $indent }) =>
-    $indent ? `${$indent * 16}px` : '0'};
+    $indent ? `${$indent * 32}px` : '0'};
   margin-inline-end: 8px;
   display: block;
   width: 16px;
+  aspect-ratio: 1;
   position: relative;
+  border-radius: 50%;
+  ${({ $loading }) =>
+    $loading &&
+    css`
+      animation: ${Spin} 1s linear infinite;
+    `}
 `
 
 const Bullet = styled(Base)`
@@ -35,10 +77,11 @@ const Bullet = styled(Base)`
     width: 8px;
     aspect-ratio: 1;
     background-color: ${color.pink.warm};
-    border-radius: 50%;
+    border-radius: 2px;
   }
 `
 const Check = styled(Base)`
+  cursor: pointer;
   &::before {
     content: '';
     position: absolute;

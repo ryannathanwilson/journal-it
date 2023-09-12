@@ -11,7 +11,6 @@ export const DeleteIcon = styled.div`
   border-radius: 1rem;
   font-weight: 700;
   font-size: 0.8rem;
-  color: var(--text-dark);
   cursor: pointer;
   opacity: 0;
   transition: opacity 500ms ease;
@@ -44,9 +43,7 @@ export const DeleteIcon = styled.div`
   }
 `
 
-export const BlockWrapper = styled.div<{
-  $loading: boolean
-}>`
+export const BlockWrapper = styled.div`
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -77,25 +74,6 @@ export const BlockWrapper = styled.div<{
       display: none;
     }
   }
-
-  ${({ $loading }) =>
-    $loading &&
-    css`
-      color: ${color.grey.dark};
-      &::before {
-        content: '';
-        display: block;
-        position: absolute;
-        left: -25px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-radius: 50%;
-        height: 12px;
-        width: 12px;
-        background-color: ${color.pink.warm};
-        animation: ${pulse} linear 1s;
-      }
-    `}
 
   &:focus-within::before {
     content: '';
