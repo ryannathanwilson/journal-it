@@ -1,11 +1,11 @@
+'use client'
 import HomePage from './HomePage'
-import styles from './page.module.css'
+import { Main } from './HomePage.styled'
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <h1 className={styles.header}>Journal It</h1>
+    <Main>
       <HomePage />
-    </main>
+    </Main>
   )
 }

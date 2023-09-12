@@ -3,12 +3,15 @@ import { color } from '@/theme'
 import { createGlobalStyle } from 'styled-components'
 
 export const GlobalStyles = createGlobalStyle`
-  html,
   body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+    position: relative;
     background-color: ${color.navy};
     color: ${color.cream.light};
+    padding: 2rem;
+    @media (min-width: 600px) {
+      padding: 6rem;
+    }
   }
 
   h1,
@@ -21,6 +24,7 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   * {
+    font-family: Arial, Helvetica, sans-serif;
     box-sizing: border-box;
     margin: 0;
     padding: 0;

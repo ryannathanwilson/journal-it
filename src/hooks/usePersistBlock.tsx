@@ -10,33 +10,34 @@ export default function usePersistBlock({
   indent,
   type,
 }: {
-  block: Block
+  block?: Block
   text: string
   indent: number
   type: BlockTypes
 }) {
-  const newBlock = block.content === ''
+  const newBlock = !block
   const { dispatch } = useGlobalState()
   const createBlock = trpc.createBlock.useMutation({
     onSuccess: (data) => {
       console.log('CREATE')
       return dispatch({
-        type: 'create',
+        type: 'upsert',
         payload: data,
       })
     },
   })
   const updateBlock = trpc.updateBlock.useMutation({
-    onSuccess: (data) =>
-      dispatch({
-        type: 'update',
+    onSuccess: (data) => {
+      console.log('CREATE')
+      return dispatch({
+        type: 'upsert',
         payload: data,
-      }),
+      })
+    },
   })
 
   const saveBlock = newBlock
-    ? async () =>
-        createBlock.mutateAsync({ ...block, content: text, type, indent })
+    ? async () => createBlock.mutateAsync({ content: text, type, indent })
     : async () =>
         updateBlock.mutateAsync({ ...block, content: text, type, indent })
 
@@ -50,7 +51,11 @@ export default function usePersistBlock({
 
   return {
     saveBlock: saveBlock,
-    deleteBlock: async () => deleteBlock.mutateAsync({ id: block.id }),
+    deleteBlock: async () => {
+      if (block?.id) {
+        deleteBlock.mutateAsync({ id: block.id })
+      }
+    },
     loading:
       deleteBlock.isLoading || createBlock.isLoading || updateBlock.isLoading,
   }

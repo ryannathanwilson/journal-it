@@ -10,16 +10,15 @@ import { useGlobalState } from '@/state'
 
 export default function Block({
   block,
-  isLastBlock,
+  isLastBlock = false,
 }: {
-  block: Block
-  isLastBlock: boolean
+  block?: Block
+  isLastBlock?: boolean
 }) {
   const { state, dispatch } = useGlobalState()
-  const newBlock = block.content === ''
-  const [text, setText] = useState(block.content)
-  const [indent, setIndent] = useState(block.indent)
-  const [type, setType] = useState<BlockTypes>(block.type)
+  const [text, setText] = useState(block?.content || '')
+  const [indent, setIndent] = useState(block?.indent || 0)
+  const [type, setType] = useState<BlockTypes>(block?.type || 'paragraph')
   const blockRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (isLastBlock && blockRef.current) {
@@ -35,7 +34,7 @@ export default function Block({
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (type !== block.type && text !== '') {
+    if (type !== block?.type && text !== '') {
       handleSave()
     }
   }, [type])
@@ -50,15 +49,25 @@ export default function Block({
   const deleteItem = async (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation() // otherwise it activates editing the parent
     await deleteBlock()
+    dispatch({ type: 'focus-last-block' })
   }
   const handleBlur = async (e: FocusEvent<HTMLDivElement>) => {
     if (text !== '') {
-      handleSave()
+      await handleSave()
+      dispatch({ type: 'focus-last-block' })
     }
   }
 
   const handleSave = async () => {
     await saveBlock()
+    if (isLastBlock && text) {
+      setText('')
+      setType('paragraph')
+      setIndent(0)
+      if (blockRef.current) {
+        blockRef.current.innerText = ''
+      }
+    }
     // TODO: create a new block at end if needed, and go to that!
   }
 
@@ -70,7 +79,8 @@ export default function Block({
     const newValue = e.currentTarget.innerText.toString() || ''
     if (e.key === 'Enter') {
       console.log('ENTER SAVE', text)
-      handleSave()
+      await handleSave()
+      dispatch({ type: 'focus-last-block' })
     } else if (e.key === 'Backspace') {
       if (newValue === text) {
         if (indent > 0) {
@@ -105,7 +115,7 @@ export default function Block({
   }
 
   return (
-    <BlockWrapper $loading={loading} $newBlock={newBlock}>
+    <BlockWrapper $loading={loading}>
       <Decorator
         type={type}
         indent={indent}
