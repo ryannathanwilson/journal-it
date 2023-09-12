@@ -60,6 +60,7 @@ const Base = styled.div<{ $indent: number; $loading: boolean }>`
   aspect-ratio: 1;
   position: relative;
   border-radius: 50%;
+  flex-shrink: 0;
   ${({ $loading }) =>
     $loading &&
     css`
@@ -71,7 +72,7 @@ const Bullet = styled(Base)`
   &::before {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 11px;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 8px;
@@ -85,10 +86,10 @@ const Check = styled(Base)`
   &::before {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 11px;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 12px;
+    width: 11px;
     aspect-ratio: 1;
     border: 1px solid ${color.pink.warm};
     border-radius: 4px;
@@ -98,7 +99,7 @@ const Checked = styled(Check)`
   &::after {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 11px;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 8px;
