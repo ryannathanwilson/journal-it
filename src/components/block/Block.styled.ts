@@ -1,6 +1,6 @@
 import { color } from '@/theme'
-import { BlockTypes } from '@/utils/types'
-import styled, { css, keyframes } from 'styled-components'
+import { BlockTypes } from '@/types/types'
+import styled, { css } from 'styled-components'
 
 export const DeleteIcon = styled.div`
   flex-shrink: 0;

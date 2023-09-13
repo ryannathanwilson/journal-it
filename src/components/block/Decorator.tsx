@@ -1,5 +1,5 @@
 import { color } from '@/theme'
-import { BlockTypes } from '@/utils/types'
+import { BlockTypes } from '@/types/types'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 

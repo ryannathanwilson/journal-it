@@ -2,7 +2,7 @@
 import type { FocusEvent, KeyboardEvent, MouseEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import usePersistBlock from '@/hooks/usePersistBlock'
-import type { Block, BlockTypes } from '@/utils/types'
+import type { Block, BlockTypes } from '@/types/types'
 import Decorator from './Decorator'
 import { BlockWrapper, Content, DeleteIcon } from './Block.styled'
 import { keysToBlock } from '@/utils/constants'

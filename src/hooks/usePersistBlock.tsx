@@ -2,7 +2,7 @@
 
 import { useGlobalState } from '@/state'
 import { trpc } from '@/utils/trpc/trpc'
-import { Block, BlockTypes } from '@/utils/types'
+import { Block, BlockTypes } from '@/types/types'
 
 export default function usePersistBlock({
   block,

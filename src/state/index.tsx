@@ -1,6 +1,6 @@
 'use client'
-import { Block } from '@/utils/types'
-import { blockValidator } from '@/utils/types/validators'
+import { Block } from '@/types/types'
+import { blockValidator } from '@/types/validators'
 import { PropsWithChildren, createContext, useContext, useReducer } from 'react'
 import { z } from 'zod'
 

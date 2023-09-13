@@ -3,7 +3,7 @@ import { z } from 'zod'
 import SuperJSON from 'superjson'
 import sleep from '@/utils/sleep'
 import { TrpcContext } from '@/utils/trpc/context'
-import { blockValidator, createBlockValidator } from '@/utils/types/validators'
+import { blockValidator, createBlockValidator } from '@/types/validators'
 import { v4 } from 'uuid'
 
 const t = initTRPC.context<TrpcContext>().create({
