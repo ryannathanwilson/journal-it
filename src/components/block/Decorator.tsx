@@ -34,27 +34,31 @@ export default function Decorator({
 
   const Component = view[type]
   return (
-    <Component
-      $indent={indent}
-      onClick={onClick}
-      $loading={animationInterval}
-    />
+    <DecoratorWrapper $indent={indent}>
+      <Component onClick={onClick} $loading={animationInterval} />
+    </DecoratorWrapper>
   )
 }
 
 const Spin = keyframes`
-0% {
-  transform: rotate(0);
-}
-100% {
-  transform: rotate(360deg)
-}
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg)
+  }
 `
 
-const Base = styled.div<{ $indent: number; $loading: boolean }>`
+const DecoratorWrapper = styled.div<{ $indent: number }>`
+  display: block;
+  width: 16px;
+  padding-top: 3px;
+  margin-inline-end: 8px;
   margin-inline-start: ${({ $indent }) =>
     $indent ? `${$indent * 32}px` : '0'};
-  margin-inline-end: 8px;
+`
+
+const Base = styled.div<{ $loading: boolean }>`
   display: block;
   width: 16px;
   aspect-ratio: 1;
@@ -72,7 +76,7 @@ const Bullet = styled(Base)`
   &::before {
     content: '';
     position: absolute;
-    top: 11px;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 8px;
@@ -86,7 +90,7 @@ const Check = styled(Base)`
   &::before {
     content: '';
     position: absolute;
-    top: 11px;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 11px;
@@ -99,7 +103,7 @@ const Checked = styled(Check)`
   &::after {
     content: '';
     position: absolute;
-    top: 11px;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 8px;

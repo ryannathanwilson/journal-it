@@ -15,6 +15,9 @@ export const DeleteIcon = styled.div`
   cursor: pointer;
   opacity: 0;
   transition: opacity 500ms ease;
+  @media (hover: none) {
+    opacity: 1;
+  }
 
   &::before,
   &::after {

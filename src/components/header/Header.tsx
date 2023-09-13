@@ -16,7 +16,7 @@ export default function Header({ loading }: { loading: boolean }): ReactNode {
 }
 
 const Loader = styled.div<{ $initialHidden: boolean }>`
-  width: 200%;
+  width: 300%;
   height: 2px;
   background-color: ${color.pink.warm};
   position: absolute;

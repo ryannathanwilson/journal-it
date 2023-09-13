@@ -8,7 +8,7 @@ export const GlobalStyles = createGlobalStyle`
     position: relative;
     background-color: ${color.navy};
     color: ${color.cream.light};
-    padding: 2rem;
+    padding: 1rem;
     @media (min-width: 600px) {
       padding: 6rem;
     }
